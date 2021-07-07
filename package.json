@@ -7,7 +7,8 @@
     "dev": "tsc -w",
     "build": "tsc",
     "lint:ts": "eslint src --ext .ts,.tsx",
-    "test": "npm run build && npm run lint:ts"
+    "test": "npm run build && npm run lint:ts",
+    "preversion": "npm run test"
   },
   "keywords": [
     "react",
