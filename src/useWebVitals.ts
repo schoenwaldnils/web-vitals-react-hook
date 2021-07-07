@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { getCLS, getFCP, getFID, getLCP, getTTFB, Metric } from 'web-vitals'
 
 const webVitals = {
@@ -95,6 +95,7 @@ export enum Rating {
 type MetricExtra = {
   rating?: Rating
   loading: boolean
+  supported: boolean
   unit?: string
 }
 
@@ -104,6 +105,7 @@ export const useWebVitals = (
   vitals = ['CLS', 'FCP', 'FID', 'LCP', 'TTFB'],
 ): MetricPlus[] => {
   const [metrics, setMetrics] = useState<MetricPlus[]>([])
+  const unsopprted = useRef<string[]>([])
 
   const handleReport = useCallback((metric: Metric) => {
     let rating: Rating
@@ -140,6 +142,7 @@ export const useWebVitals = (
           ...metric,
           rating,
           loading: false,
+          supported: true,
           unit: metricConfig.unit,
           ...metricConfig,
         },
@@ -151,6 +154,26 @@ export const useWebVitals = (
     if (typeof window !== 'undefined') {
       vitals.forEach((vital) => {
         const getMetric = webVitals[vital as keyof typeof webVitals]
+
+        // exclude metric when it's not supported
+        const metricConfig = METRIC_CONFIG.get(vital)
+
+        if (
+          metricConfig?.observerEntryType &&
+          !PerformanceObserver.supportedEntryTypes.includes(
+            metricConfig?.observerEntryType,
+          )
+        ) {
+          console.error(
+            `${
+              METRIC_CONFIG.get(vital)?.longName || vital
+            } not supported in this browser`,
+          )
+          if (unsopprted.current.indexOf(vital) === -1) {
+            unsopprted.current.push(vital)
+          }
+          return
+        }
 
         if (getMetric) {
           getMetric(handleReport)
@@ -171,6 +194,7 @@ export const useWebVitals = (
         metrics.find((m) => m.name === (v as Metric['name'])) || {
           name: v as Metric['name'],
           loading: true,
+          supported: !unsopprted.current.includes(v),
           ...METRIC_CONFIG.get(v),
         },
     )

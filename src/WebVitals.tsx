@@ -47,7 +47,8 @@ export const WebVitals: FC<{
   return (
     <dl className={`${className} WebVitals`} style={dlStyles}>
       {metrics.map((metric) => {
-        const { name, explainerURL, longName, rating, unit, value } = metric
+        const { name, explainerURL, longName, supported, rating, unit, value } =
+          metric
 
         let color = 'var(--metricUnknown, inherit)'
         if (rating === Rating['poor']) {
@@ -70,6 +71,16 @@ export const WebVitals: FC<{
           </LinkComponent>
         )
 
+        let valueString = '...'
+
+        if (!supported) {
+          valueString = 'not supported'
+        }
+
+        if (supported && value) {
+          valueString = `${Math.floor(value)}${unit ? unit : ''}`
+        }
+
         return (
           <Fragment key={metric.name}>
             {!hideFullName && (
@@ -90,7 +101,7 @@ export const WebVitals: FC<{
               style={{ color, margin: 0 }}
               className="WebVitals-value"
             >
-              {value ? `${Math.floor(value)}${unit ? unit : ''}` : '...'}
+              {valueString}
             </ValueComponent>
           </Fragment>
         )
