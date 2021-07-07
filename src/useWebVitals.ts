@@ -11,7 +11,18 @@ const webVitals = {
 
 const MS_UNIT = 'ms'
 
-const METRIC_CONFIG = new Map([
+type MetricConfig = {
+  thresholds: {
+    good: number
+    needsImprovement?: number
+  }
+  observerEntryType?: string
+  explainerURL: string
+  longName: string
+  unit?: typeof MS_UNIT
+}
+
+const METRIC_CONFIG: Map<string, MetricConfig> = new Map([
   [
     'CLS',
     {
@@ -75,13 +86,19 @@ const METRIC_CONFIG = new Map([
   ],
 ])
 
+export enum Rating {
+  'poor',
+  'needs-improvement',
+  'good',
+}
+
 type MetricExtra = {
-  rating?: string
+  rating?: Rating
   loading: boolean
   unit?: string
 }
 
-export type MetricPlus = Partial<Metric> & MetricExtra
+export type MetricPlus = Partial<Metric> & Partial<MetricConfig> & MetricExtra
 
 export const useWebVitals = (
   vitals = ['CLS', 'FCP', 'FID', 'LCP', 'TTFB'],
@@ -89,10 +106,10 @@ export const useWebVitals = (
   const [metrics, setMetrics] = useState<MetricPlus[]>([])
 
   const handleReport = useCallback((metric: Metric) => {
-    let rating: string | undefined = undefined
+    let rating: Rating
 
     if (metric?.value) {
-      rating = 'poor'
+      rating = Rating['poor']
     }
 
     const metricConfig = METRIC_CONFIG.get(metric.name)
@@ -106,11 +123,11 @@ export const useWebVitals = (
       needsImprovement &&
       metric?.value <= needsImprovement
     ) {
-      rating = 'needs-improvement'
+      rating = Rating['needs-improvement']
     }
 
     if (metric?.value && metric?.value <= good) {
-      rating = 'good'
+      rating = Rating['good']
     }
 
     setMetrics((curr) => {
@@ -124,6 +141,7 @@ export const useWebVitals = (
           rating,
           loading: false,
           unit: metricConfig.unit,
+          ...metricConfig,
         },
       ]
     })
@@ -153,6 +171,7 @@ export const useWebVitals = (
         metrics.find((m) => m.name === (v as Metric['name'])) || {
           name: v as Metric['name'],
           loading: true,
+          ...METRIC_CONFIG.get(v),
         },
     )
   }, [metrics, vitals])
