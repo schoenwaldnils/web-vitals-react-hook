@@ -20,6 +20,7 @@ export const Value: FC<React.HTMLAttributes<HTMLElement>> = (props) => (
 )
 
 export const WebVitals: FC<{
+  vitals?: string[]
   hideFullName?: boolean
   className?: string
   NameComponent?: typeof Name
@@ -27,6 +28,7 @@ export const WebVitals: FC<{
   LinkComponent?: typeof Link
   ValueComponent?: typeof Value
 }> = ({
+  vitals = ['CLS', 'FCP', 'FID', 'LCP', 'TTFB'],
   hideFullName = false,
   className = '',
   NameComponent = Name,
@@ -34,7 +36,7 @@ export const WebVitals: FC<{
   LinkComponent = Link,
   ValueComponent = Value,
 }) => {
-  const metrics = useWebVitals()
+  const metrics = useWebVitals(vitals)
 
   const dlStyles: CSSProperties = {
     display: 'inline-grid',
