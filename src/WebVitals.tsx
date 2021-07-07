@@ -20,14 +20,14 @@ export const Value: FC<React.HTMLAttributes<HTMLElement>> = (props) => (
 )
 
 export const WebVitals: FC<{
-  showMetricName?: boolean
+  hideFullName?: boolean
   className?: string
   NameComponent?: typeof Name
   ShortNameComponent?: typeof ShortName
   LinkComponent?: typeof Link
   ValueComponent?: typeof Value
 }> = ({
-  showMetricName = false,
+  hideFullName = false,
   className = '',
   NameComponent = Name,
   ShortNameComponent = ShortName,
@@ -39,7 +39,7 @@ export const WebVitals: FC<{
   const dlStyles: CSSProperties = {
     display: 'inline-grid',
     columnGap: '1em',
-    gridTemplateColumns: `repeat(${showMetricName ? 3 : 2}, auto)`,
+    gridTemplateColumns: `repeat(${hideFullName ? 2 : 3}, auto)`,
   }
 
   return (
@@ -70,18 +70,18 @@ export const WebVitals: FC<{
 
         return (
           <Fragment key={metric.name}>
-            {showMetricName && (
+            {!hideFullName && (
               <NameComponent className="WebVitals-name">
                 {longName}
               </NameComponent>
             )}
             <ShortNameComponent className="WebVitals-shortName">
-              {showMetricName ? (
+              {hideFullName ? (
+                <Link />
+              ) : (
                 <>
                   (<Link />)
                 </>
-              ) : (
-                <Link />
               )}
             </ShortNameComponent>
             <ValueComponent
