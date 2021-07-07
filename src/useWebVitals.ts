@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { getCLS, getFCP, getFID, getLCP, getTTFB, Metric } from 'web-vitals'
 
 const webVitals = {
@@ -81,23 +81,14 @@ type MetricExtra = {
   unit?: string
 }
 
-export type MetricPlus = Record<string, Metric & MetricExtra>
+export type MetricPlus = Partial<Metric> & MetricExtra
 
 export const useWebVitals = (
   vitals = ['CLS', 'FCP', 'FID', 'LCP', 'TTFB'],
-): MetricPlus => {
-  const [metrics, setMetrics] = useState<MetricPlus>(
-    vitals.reduce(
-      (curr, next) => ({
-        ...curr,
-        [next]: { name: next, loading: true },
-      }),
-      {},
-    ),
-  )
+): MetricPlus[] => {
+  const [metrics, setMetrics] = useState<MetricPlus[]>([])
 
   const handleReport = useCallback((metric: Metric) => {
-    // console.log('handleReport', metric.name)
     let rating: string | undefined = undefined
 
     if (metric?.value) {
@@ -123,18 +114,18 @@ export const useWebVitals = (
     }
 
     setMetrics((curr) => {
-      if (!curr[metric.name]?.loading || !metric?.value) {
+      if (curr.find((i) => i.name === metric.name) || !metric?.value) {
         return curr
       }
-      return {
+      return [
         ...curr,
-        [metric.name]: {
+        {
           ...metric,
           rating,
           loading: false,
           unit: metricConfig.unit,
         },
-      }
+      ]
     })
   }, [])
 
@@ -156,5 +147,15 @@ export const useWebVitals = (
     }
   }, [handleReport, vitals])
 
-  return metrics
+  const sortetMetrics: MetricPlus[] = useMemo(() => {
+    return vitals.map(
+      (v) =>
+        metrics.find((m) => m.name === (v as Metric['name'])) || {
+          name: v as Metric['name'],
+          loading: true,
+        },
+    )
+  }, [metrics, vitals])
+
+  return sortetMetrics
 }
