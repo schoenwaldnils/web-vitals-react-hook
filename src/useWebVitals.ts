@@ -176,7 +176,7 @@ export const useWebVitals = (
         }
 
         if (getMetric) {
-          getMetric(handleReport)
+          getMetric(handleReport, true)
         } else {
           console.error(
             `${
