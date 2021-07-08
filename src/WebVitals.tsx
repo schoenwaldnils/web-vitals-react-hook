@@ -78,7 +78,11 @@ export const WebVitals: FC<{
         }
 
         if (supported && value) {
-          valueString = `${Math.floor(value)}${unit ? unit : ''}`
+          if (unit === 'ms') {
+            valueString = `${Math.floor(value)}${unit}`
+          } else {
+            valueString = value.toFixed(2)
+          }
         }
 
         return (
