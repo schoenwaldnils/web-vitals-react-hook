@@ -2,7 +2,7 @@
 
 > Bring [web vitals](https://github.com/GoogleChrome/web-vitals) quickly into your react project
 
-May thanks to [Stafan Judis](https://www.stefanjudis.com/) for his [web-vitals-element](https://www.npmjs.com/package/web-vitals-element) where i borrowed a few lines and ideas 😁
+May thanks to [Stefan Judis](https://www.stefanjudis.com/) for his [web-vitals-element](https://www.npmjs.com/package/web-vitals-element) where i borrowed a few lines and ideas 😁
 
 ## Install
 
